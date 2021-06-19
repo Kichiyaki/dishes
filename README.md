@@ -11,7 +11,7 @@
 
 1. Clone this repo
 ```
-git@github.com:Kichiyaki/dishes.git
+git clone git@github.com:Kichiyaki/dishes.git
 ```
 2. Open the folder with this project in a terminal.
 3. ``yarn install``
