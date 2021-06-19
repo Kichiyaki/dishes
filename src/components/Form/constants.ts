@@ -1,10 +1,6 @@
 import { Mark } from '@material-ui/core/Slider/Slider';
+import { DishType } from 'libs/api';
 
-export enum DishType {
-  Pizza = 'pizza',
-  Soup = 'soup',
-  Sandwich = 'sandwich',
-}
 export const TYPES = Object.entries(DishType);
 
 export const MIN_SPICINESS_SCALE = 1;

@@ -1,4 +1,14 @@
 import React, { useState, Fragment } from 'react';
+import { useSnackbar } from 'notistack';
+import { omit } from 'lodash';
+import { useAPI, APIError, DishType } from 'libs/api';
+import {
+  TYPES,
+  MIN_SPICINESS_SCALE,
+  MAX_SPICINESS_SCALE,
+  MARKS,
+} from './constants';
+
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -9,25 +19,14 @@ import {
   Typography,
 } from '@material-ui/core';
 import InputMask from 'react-input-mask';
-import {
-  DishType,
-  TYPES,
-  MIN_SPICINESS_SCALE,
-  MAX_SPICINESS_SCALE,
-  MARKS,
-} from './constants';
 
 const Form = () => {
+  const api = useAPI();
   const classes = useStyles();
-  const [values, setValues] = useState({
-    name: '',
-    preparation_time: '',
-    type: DishType.Pizza,
-    no_of_slices: '0',
-    diameter: '0',
-    spiciness_scale: 1,
-    slices_of_bread: '0',
-  });
+  const { enqueueSnackbar } = useSnackbar();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [values, setValues] = useState(getDefaultValues());
 
   const handleKeyDownNumberField = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (['e', 'E', '+', '-', '.'].includes(e.key)) {
@@ -44,6 +43,10 @@ const Form = () => {
         [e.target.name]: e.target.value,
       }));
     }
+
+    if (e.target.name in errors) {
+      setErrors(prev => omit(prev, [e.target.name]));
+    }
   };
 
   const handleSpicinessScaleChange = (
@@ -56,12 +59,40 @@ const Form = () => {
     }));
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      setErrors({});
+      await api.createDish({
+        ...values,
+        no_of_slices: parseFloat(values.no_of_slices),
+        diameter: parseFloat(values.diameter),
+        slices_of_bread: parseFloat(values.slices_of_bread),
+      });
+      setValues(getDefaultValues());
+      enqueueSnackbar('The dish has been successfully created.', {
+        variant: 'success',
+      });
+    } catch (e) {
+      if (e instanceof APIError && Object.keys(e.objWithErrors).length > 0) {
+        setErrors(e.objWithErrors);
+      } else {
+        enqueueSnackbar(e.message, {
+          variant: 'error',
+        });
+      }
+    }
+    setIsSubmitting(false);
+  };
+
   const defaultTextFieldProps: TextFieldProps = {
     required: true,
     fullWidth: true,
+    disabled: isSubmitting,
   };
   return (
-    <form className={classes.form}>
+    <form onSubmit={handleSubmit} className={classes.form}>
       <Typography onChange={handleChange} variant="h1" align="center">
         Form
       </Typography>
@@ -70,18 +101,23 @@ const Form = () => {
         value={values.name}
         name="name"
         label="Name"
+        error={!!errors['name']}
+        helperText={errors['name']}
         {...defaultTextFieldProps}
       />
       <InputMask
         onChange={handleChange}
         value={values.preparation_time}
         mask="99:99:99"
+        disabled={isSubmitting}
       >
         {() => {
           return (
             <TextField
               name="preparation_time"
               label="Preparation time"
+              error={!!errors['preparation_time']}
+              helperText={errors['preparation_time']}
               {...defaultTextFieldProps}
             />
           );
@@ -93,6 +129,8 @@ const Form = () => {
         select
         label="Dish type"
         onChange={handleChange}
+        error={!!errors['type']}
+        helperText={errors['type']}
         {...defaultTextFieldProps}
       >
         {TYPES.map(([name, value]) => {
@@ -113,6 +151,8 @@ const Form = () => {
             value={values.no_of_slices}
             onChange={handleChange}
             onKeyDown={handleKeyDownNumberField}
+            error={!!errors['no_of_slices']}
+            helperText={errors['no_of_slices']}
             {...defaultTextFieldProps}
           />
           <TextField
@@ -121,6 +161,8 @@ const Form = () => {
             type="number"
             inputProps={{ min: 0, step: '0.01' }}
             value={values.diameter}
+            error={!!errors['diameter']}
+            helperText={errors['diameter']}
             onChange={handleChange}
             {...defaultTextFieldProps}
           />
@@ -135,6 +177,7 @@ const Form = () => {
             marks={MARKS}
             min={MIN_SPICINESS_SCALE}
             max={MAX_SPICINESS_SCALE}
+            disabled={isSubmitting}
             onChange={handleSpicinessScaleChange}
           />
         </div>
@@ -144,10 +187,12 @@ const Form = () => {
           name="slices_of_bread"
           label="Slices of bread"
           type="number"
-          inputProps={{ min: 0, step: 1 }}
+          inputProps={{ min: 1, step: 1 }}
           value={values.slices_of_bread}
           onChange={handleChange}
           onKeyDown={handleKeyDownNumberField}
+          error={!!errors['slices_of_bread']}
+          helperText={errors['slices_of_bread']}
           {...defaultTextFieldProps}
         />
       )}
@@ -157,11 +202,24 @@ const Form = () => {
         size="large"
         type="submit"
         fullWidth
+        disabled={isSubmitting}
       >
         Submit
       </Button>
     </form>
   );
+};
+
+const getDefaultValues = () => {
+  return {
+    name: '',
+    preparation_time: '',
+    type: DishType.Pizza,
+    no_of_slices: '0',
+    diameter: '0',
+    spiciness_scale: 1,
+    slices_of_bread: '1',
+  };
 };
 
 const useStyles = makeStyles(theme => ({
