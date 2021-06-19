@@ -181,6 +181,7 @@ const Form = () => {
 
 const useStyles = makeStyles(theme => ({
   form: {
+    minHeight: '445px',
     '& > *:not(:last-child)': {
       marginBottom: theme.spacing(1),
     },
