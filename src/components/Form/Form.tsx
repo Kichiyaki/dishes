@@ -26,15 +26,7 @@ const Form = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [values, setValues] = useState({
-    name: '',
-    preparation_time: '',
-    type: DishType.Pizza,
-    no_of_slices: '0',
-    diameter: '0',
-    spiciness_scale: 1,
-    slices_of_bread: '1',
-  });
+  const [values, setValues] = useState(getDefaultValues());
 
   const handleKeyDownNumberField = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (['e', 'E', '+', '-', '.'].includes(e.key)) {
@@ -78,6 +70,7 @@ const Form = () => {
         diameter: parseFloat(values.diameter),
         slices_of_bread: parseFloat(values.slices_of_bread),
       });
+      setValues(getDefaultValues());
       enqueueSnackbar('The dish has been successfully created.', {
         variant: 'success',
       });
@@ -215,6 +208,18 @@ const Form = () => {
       </Button>
     </form>
   );
+};
+
+const getDefaultValues = () => {
+  return {
+    name: '',
+    preparation_time: '',
+    type: DishType.Pizza,
+    no_of_slices: '0',
+    diameter: '0',
+    spiciness_scale: 1,
+    slices_of_bread: '1',
+  };
 };
 
 const useStyles = makeStyles(theme => ({
