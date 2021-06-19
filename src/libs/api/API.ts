@@ -2,8 +2,11 @@ import { isPlainObject, pick } from 'lodash';
 import { CreateDishPayload, DishType } from './types';
 
 export class APIError extends Error {
-  constructor(public messages: string[]) {
-    super(messages.join(';'));
+  constructor(
+    public message: string,
+    public objWithErrors: { [key: string]: string }
+  ) {
+    super(message);
   }
 }
 
@@ -40,11 +43,8 @@ export class API {
     if (res.status >= 400) {
       const errObj = await res.json();
       throw new APIError(
-        isPlainObject(errObj)
-          ? Object.values(errObj)
-          : [
-              `Something went wrong while creating a dish. Please try again later.`,
-            ]
+        'Something went wrong while creating a dish. Please try again later.',
+        isPlainObject(errObj) ? errObj : {}
       );
     }
   }
