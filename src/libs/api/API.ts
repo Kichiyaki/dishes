@@ -1,6 +1,12 @@
 import { isPlainObject, pick } from 'lodash';
 import { CreateDishPayload, DishType } from './types';
 
+export class APIError extends Error {
+  constructor(public messages: string[]) {
+    super(messages.join(';'));
+  }
+}
+
 export class API {
   private static sanitizeCreateDishPayload(payload: CreateDishPayload) {
     if (!isPlainObject(payload)) {
@@ -23,13 +29,23 @@ export class API {
 
   constructor(private apiURL: string) {}
 
-  public createDish(payload: CreateDishPayload) {
-    return fetch(this.apiURL + '/dishes', {
+  public async createDish(payload: CreateDishPayload) {
+    const res = await fetch(this.apiURL + '/dishes', {
       method: 'POST',
       body: JSON.stringify(API.sanitizeCreateDishPayload(payload)),
       headers: {
         'Content-Type': 'application/json',
       },
     });
+    if (res.status >= 400) {
+      const errObj = await res.json();
+      throw new APIError(
+        isPlainObject(errObj)
+          ? Object.values(errObj)
+          : [
+              `Something went wrong while creating a dish. Please try again later.`,
+            ]
+      );
+    }
   }
 }

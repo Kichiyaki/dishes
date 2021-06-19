@@ -1,4 +1,13 @@
 import React, { useState, Fragment } from 'react';
+import { useAPI } from 'libs/api';
+import {
+  DishType,
+  TYPES,
+  MIN_SPICINESS_SCALE,
+  MAX_SPICINESS_SCALE,
+  MARKS,
+} from './constants';
+
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -9,15 +18,9 @@ import {
   Typography,
 } from '@material-ui/core';
 import InputMask from 'react-input-mask';
-import {
-  DishType,
-  TYPES,
-  MIN_SPICINESS_SCALE,
-  MAX_SPICINESS_SCALE,
-  MARKS,
-} from './constants';
 
 const Form = () => {
+  const api = useAPI();
   const classes = useStyles();
   const [values, setValues] = useState({
     name: '',
@@ -56,12 +59,27 @@ const Form = () => {
     }));
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.createDish({
+        ...values,
+        no_of_slices: parseFloat(values.no_of_slices),
+        diameter: parseFloat(values.diameter),
+        slices_of_bread: parseFloat(values.slices_of_bread),
+      });
+      console.log('success');
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const defaultTextFieldProps: TextFieldProps = {
     required: true,
     fullWidth: true,
   };
   return (
-    <form className={classes.form}>
+    <form onSubmit={handleSubmit} className={classes.form}>
       <Typography onChange={handleChange} variant="h1" align="center">
         Form
       </Typography>
