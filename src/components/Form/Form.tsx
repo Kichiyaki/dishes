@@ -9,28 +9,13 @@ import {
   Typography,
 } from '@material-ui/core';
 import InputMask from 'react-input-mask';
-import { Mark } from '@material-ui/core/Slider/Slider';
-
-enum DishType {
-  Pizza = 'pizza',
-  Soup = 'soup',
-  Sandwich = 'sandwich',
-}
-const TYPES = Object.entries(DishType);
-
-const MIN_SPICINESS_SCALE = 1;
-const MAX_SPICINESS_SCALE = 10;
-const generateMarks = () => {
-  const marks: Mark[] = [];
-  for (let i = MIN_SPICINESS_SCALE; i <= MAX_SPICINESS_SCALE; i++) {
-    marks.push({
-      value: i,
-      label: i,
-    });
-  }
-  return marks;
-};
-const MARKS = generateMarks();
+import {
+  DishType,
+  TYPES,
+  MIN_SPICINESS_SCALE,
+  MAX_SPICINESS_SCALE,
+  MARKS,
+} from './constants';
 
 const Form = () => {
   const classes = useStyles();
