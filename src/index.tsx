@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { SnackbarProvider } from 'notistack';
 import { ThemeProvider } from '@material-ui/styles';
 import App from './App';
 import { APIProvider } from './libs/api';
@@ -10,7 +11,14 @@ import reportWebVitals from './reportWebVitals';
 ReactDOM.render(
   <ThemeProvider theme={createTheme()}>
     <APIProvider apiURL={API_URL}>
-      <App />
+      <SnackbarProvider
+        maxSnack={3}
+        autoHideDuration={3000}
+        preventDuplicate
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <App />
+      </SnackbarProvider>
     </APIProvider>
   </ThemeProvider>,
   document.getElementById('root')

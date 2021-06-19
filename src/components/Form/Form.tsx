@@ -18,10 +18,12 @@ import {
   Typography,
 } from '@material-ui/core';
 import InputMask from 'react-input-mask';
+import { useSnackbar } from 'notistack';
 
 const Form = () => {
   const api = useAPI();
   const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
   const [values, setValues] = useState({
     name: '',
     preparation_time: '',
@@ -68,9 +70,11 @@ const Form = () => {
         diameter: parseFloat(values.diameter),
         slices_of_bread: parseFloat(values.slices_of_bread),
       });
-      console.log('success');
+      enqueueSnackbar('The dish has been successfully created.', {
+        variant: 'success',
+      });
     } catch (e) {
-      console.log(e);
+      enqueueSnackbar(e.message, { variant: 'error' });
     }
   };
 
