@@ -1,8 +1,8 @@
 import React, { useState, Fragment } from 'react';
+import { useSnackbar } from 'notistack';
 import { omit } from 'lodash';
-import { useAPI, APIError } from 'libs/api';
+import { useAPI, APIError, DishType } from 'libs/api';
 import {
-  DishType,
   TYPES,
   MIN_SPICINESS_SCALE,
   MAX_SPICINESS_SCALE,
@@ -19,7 +19,6 @@ import {
   Typography,
 } from '@material-ui/core';
 import InputMask from 'react-input-mask';
-import { useSnackbar } from 'notistack';
 
 const Form = () => {
   const api = useAPI();
