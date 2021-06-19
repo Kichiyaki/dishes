@@ -1,7 +1,15 @@
-import React from 'react';
+import { Container, CssBaseline } from '@material-ui/core';
+import Form from './components/Form/Form';
 
 function App() {
-  return <div>App</div>;
+  return (
+    <div>
+      <Container maxWidth="sm">
+        <Form />
+      </Container>
+      <CssBaseline />
+    </div>
+  );
 }
 
 export default App;
